@@ -8,7 +8,7 @@ public class ErrorKit {
      * @param msgParams printf params for errorMsg
      * @return Supplier for RuntimeException, fits to Streams/Optionals
      * Usage:
-     * <li> found = someStream.findFirst().orElseThrow(_fail("Not found '%s'", txt))
+     * <li> found = someStream.findFirst().orElseThrow(_fail("Not found '%s'", someParam))
      */
     public static Supplier<RuntimeException> _fail(String errorMsg, Object... msgParams) {
         return () -> new Fail(errorMsg, msgParams);
