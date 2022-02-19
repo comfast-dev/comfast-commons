@@ -1,37 +1,65 @@
 package dev.comfast.io;
+import dev.comfast.errors.Fail;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.apache.commons.io.IOUtils;
 
 import java.net.URL;
-import java.nio.file.Path;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static dev.comfast.io.CopyFileUtils.copyDir;
 
 @RequiredArgsConstructor
 public class ResourceLoader {
     private final Class<?> resourceClass;
 
-    @SneakyThrows
-    public String read(String resourcePath) {
-        return IOUtils.toString(getUrl(resourcePath), UTF_8);
+    public ResourceLoader() {
+        resourceClass = null;
     }
 
     @SneakyThrows
-    public void copy(String resourcePath, Path targetDir) {
-        copyDir(getUrl(resourcePath), targetDir);
+    public String readFile(String filePath) {
+        return getFile(filePath).read();
+    }
+
+    @SneakyThrows
+    public FileLoader getFile(String filePath) {
+        return new FileLoader(getUrl(filePath));
+    }
+
+    public ZipFileLoader getZipFile(String zipFilePath) {
+        if(!zipFilePath.endsWith(".zip")) throw new Fail("Archive file should end with .zip");
+        URL url = getUrl(zipFilePath);
+
+        boolean shouldFail = true;
+        //noinspection ConstantConditions
+        if(shouldFail && url.getProtocol().equals("jar")) {
+            throw new Fail("Probably will not work (need to unpack zip before), todo check this.");
+        }
+
+        return new ZipFileLoader(url);
+    }
+
+    @SneakyThrows
+    public Directory getDir(String directoryPath) {
+        URL url = getUrl(directoryPath);
+        return url.getProtocol().equals("jar")
+               ? ZipFileLoader.combineJarAndDirectory(url, directoryPath)
+               : new PathDirectoryLoader(getUrl(directoryPath));
     }
 
     @SneakyThrows
     private URL getUrl(String filePath) {
-        URL url = resourceClass.getResource(filePath);
-        if(url == null) throw new RuntimeException("Not found resource in: " + fullPath(filePath));
+        URL url = resourceClass != null
+                  ? resourceClass.getResource(filePath)
+                  : ResourceLoader.class.getClassLoader().getResource(filePath);
+
+        if(url == null) throw new Fail("Not found resource: " + fullPath(filePath));
         return url;
     }
 
     private String fullPath(String filePath) {
-        return resourceClass.getPackageName().replaceFirst("^package", "")
-            .replaceAll("\\.", "/") + "/" + filePath;
+        @SuppressWarnings("ConstantConditions")
+        String basePath = resourceClass == null
+                          ? ResourceLoader.class.getClassLoader().getResource("").getPath()
+                          : resourceClass.getResource("").getPath();
+
+        return basePath + filePath;
     }
 }

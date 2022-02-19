@@ -1,5 +1,6 @@
 
 package dev.comfast.io;
+import dev.comfast.errors.Fail;
 import dev.comfast.rgx.RgxMatch;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -13,7 +14,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import static dev.comfast.rgx.RgxApi.rgx;
-import static java.lang.String.format;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @RequiredArgsConstructor
@@ -41,7 +41,6 @@ public class CopyFileUtils {
      * Intentionally not public.
      *
      * @see #copyDir(Path, Path)
-     * @see ResourceLoader#copy(String, Path)
      */
     @SneakyThrows
     static void copyDir(URL url, Path targetDir) {
@@ -52,19 +51,16 @@ public class CopyFileUtils {
             case "jar":
                 copyDirFromJar(url, targetDir); break;
             default:
-                throw new RuntimeException(format("Not handle '%s' protocol from: %s ", url.getProtocol(), url));
+                throw new Fail("Not handle '%s' protocol from: %s ", url.getProtocol(), url);
         }
     }
 
     @SneakyThrows
     @SuppressWarnings("RegExpRedundantEscape")
-    private static void copyDirFromJar(URL resourceUrl, Path targetDir) {
-        RgxMatch match = rgx("jar:file:([^!]+)!\\/(.*)")
-            .match(resourceUrl.toString())
-            .throwIfEmpty("Invalid url for jarfile: " + resourceUrl);
-
-        JarFile jar = new JarFile(match.group(1));
-        String insideJarPath = match.group(2);
+    public static void copyDirFromJar(URL resourceUrl, Path targetDir) {
+        String[] paths = splitJarUrl(resourceUrl);
+        JarFile jar = new JarFile(paths[0]);
+        String insideJarPath = paths[1];
 
         Collections.list(jar.entries()).stream()
             .filter(e -> !e.isDirectory() &&
@@ -76,6 +72,14 @@ public class CopyFileUtils {
                 Path newPath = targetDir.resolve(Path.of(fileDir));
                 copyFile(sneakyStream(jar, jarEntry), newPath);
             });
+    }
+
+    private static String[] splitJarUrl(URL jarUrl) {
+        @SuppressWarnings("RegExpRedundantEscape")
+        RgxMatch match = rgx("jar:file:([^!]+)!\\/(.*)")
+            .match(jarUrl.toString())
+            .throwIfEmpty("Invalid url for jarfile: " + jarUrl);
+        return new String[]{match.group(1), match.group(2)};
     }
 
     @SneakyThrows
