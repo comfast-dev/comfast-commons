@@ -1,7 +1,8 @@
-package dev.comfast.io;
+package dev.comfast.io.core;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.file.PathUtils;
 
 import java.net.URL;
 import java.nio.file.Path;
@@ -20,6 +21,11 @@ public class FileLoader {
     @SneakyThrows
     public void copyTo(Path targetDir) {
         Path fileName = Path.of(fileUrl.toURI()).getFileName();
-        IOUtils.copy(fileUrl, targetDir.resolve(fileName).toFile());
+        PathUtils.copyFile(fileUrl, targetDir.resolve(fileName));
+    }
+
+    @SneakyThrows
+    public void copyTo(Path targetDir, String targetFilename) {
+        PathUtils.copyFile(fileUrl, targetDir.resolve(targetFilename));
     }
 }

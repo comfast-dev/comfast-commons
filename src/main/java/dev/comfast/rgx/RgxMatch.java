@@ -1,5 +1,6 @@
 package dev.comfast.rgx;
 
+import dev.comfast.errors.Fail;
 import lombok.RequiredArgsConstructor;
 
 import static java.lang.String.format;
@@ -31,9 +32,9 @@ public class RgxMatch {
     public String group(int nth) {
         throwIfEmpty();
         if (foundGroups.length <= nth) {
-            throw new RgxException(
-                    "Match doesn't contain group: %d. Total groups are: %d\n" +
-                    "Found by pattern '%s' in:\n%s",
+            throw new RgxNotFound(
+                    "Match doesn't contain group #%d in %d total groups\n" +
+                    "Match found by pattern '%s' in input:\n%s",
                     nth, foundGroups.length - 1, pattern, shortInput());
         }
         return foundGroups[nth];
@@ -68,13 +69,16 @@ public class RgxMatch {
     }
 
     /**
-     * Throws Exception with additional message and match details if match empty.
+     * @param failMsg OPTIONAL, if empty will throw only cause Exception
+     * @param msgArgs printf arguments for failMsg
      */
-    public RgxMatch throwIfEmpty(String userFailMsg) {
+    public RgxMatch throwIfEmpty(String failMsg, Object... msgArgs) {
         if (isPresent()) return this;
-        throw new RgxException(format(
-                "%s\nNot found pattern '%s' in text:\n%s",
-                userFailMsg, pattern, shortInput()));
+
+        RgxNotFound cause = new RgxNotFound(format("Not found pattern '%s' in text:\n%s", pattern, shortInput()));
+        throw failMsg == null || failMsg.isEmpty()
+              ? cause :
+              new Fail(format(failMsg, msgArgs), cause);
     }
 
     private String shortInput() {

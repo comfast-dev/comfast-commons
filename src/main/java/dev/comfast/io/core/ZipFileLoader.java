@@ -1,4 +1,4 @@
-package dev.comfast.io;
+package dev.comfast.io.core;
 import dev.comfast.rgx.RgxMatch;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -22,16 +22,26 @@ public class ZipFileLoader implements Directory {
     private final URL zipUrl;
     private Path baseDir = Path.of("");
 
+    /**
+     * url contain two paths: to zip/jar file and inside zip.
+     * Need to get path only to zip and combine inside zip path from url and parameter
+     */
     @SneakyThrows
-    public static ZipFileLoader combineJarAndDirectory(URL jarUrl, String dir) {
+    public static ZipFileLoader combineUrlAndDirectory(URL jarUrl, String directoryPath) {
         String[] paths = splitJarUrl(jarUrl);
+        String pathToZip = paths[0];
+        String pathInZip = paths[1];
 
-        URL zipUrl = new URL(paths[0]);
-        return new ZipFileLoader(zipUrl, Path.of(paths[1]).resolve(dir));
+        return new ZipFileLoader(new URL(pathToZip), Path.of(pathInZip).resolve(directoryPath));
     }
 
     public FileLoader getFile(String filePath) {
         return new FileLoader(getFileUrl(filePath));
+    }
+
+    @SuppressWarnings("RegExpRedundantEscape")
+    public void copyTo(Path targetPath) {
+        copyDir("", targetPath);
     }
 
     @SuppressWarnings("RegExpRedundantEscape")
@@ -63,11 +73,15 @@ public class ZipFileLoader implements Directory {
         return new URL("jar:" + zipUrl + "!/" + resolvePath(filePath));
     }
 
+    /**
+     * @param jarUrl URL with jar protocol
+     * @return [urlToJar, pathInsideJar]
+     */
     private static String[] splitJarUrl(URL jarUrl) {
         @SuppressWarnings("RegExpRedundantEscape")
         RgxMatch match = rgx("jar:file:([^!]+)!\\/(.*)")
             .match(jarUrl.toString())
-            .throwIfEmpty("Invalid url for jarfile: " + jarUrl);
+            .throwIfEmpty("Invalid url for jarfile: '%s'. Expected url with protocol jar:...", jarUrl);
         return new String[] {match.group(1), match.group(2)};
     }
 

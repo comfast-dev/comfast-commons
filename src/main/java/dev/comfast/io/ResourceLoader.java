@@ -1,5 +1,9 @@
 package dev.comfast.io;
 import dev.comfast.errors.Fail;
+import dev.comfast.io.core.Directory;
+import dev.comfast.io.core.FileLoader;
+import dev.comfast.io.core.PathDirectoryLoader;
+import dev.comfast.io.core.ZipFileLoader;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
@@ -27,9 +31,8 @@ public class ResourceLoader {
         if(!zipFilePath.endsWith(".zip")) throw new Fail("Archive file should end with .zip");
         URL url = getUrl(zipFilePath);
 
-        boolean shouldFail = true;
-        //noinspection ConstantConditions
-        if(shouldFail && url.getProtocol().equals("jar")) {
+        if(url.getProtocol().equals("jar")) {
+            //todo implement
             throw new Fail("Probably will not work (need to unpack zip before), todo check this.");
         }
 
@@ -38,9 +41,10 @@ public class ResourceLoader {
 
     @SneakyThrows
     public Directory getDir(String directoryPath) {
+        shouldNotBeEmpty("directoryPath", directoryPath);
         URL url = getUrl(directoryPath);
         return url.getProtocol().equals("jar")
-               ? ZipFileLoader.combineJarAndDirectory(url, directoryPath)
+               ? ZipFileLoader.combineUrlAndDirectory(url, directoryPath)
                : new PathDirectoryLoader(getUrl(directoryPath));
     }
 
@@ -61,5 +65,10 @@ public class ResourceLoader {
                           : resourceClass.getResource("").getPath();
 
         return basePath + filePath;
+    }
+
+    private void shouldNotBeEmpty(String name, String value) {
+        if(value == null || value.isBlank())
+            throw new Fail("%s should not be empty", name);
     }
 }
