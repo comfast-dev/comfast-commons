@@ -70,4 +70,20 @@ public class PowerTools {
                 "el.style.transition = ''; el.style.background = '#bc00b6';\n" +
                 "setTimeout(() => { el.style.transition = 'all 3s ease'; el.style.background = beforeBackground;}, 0)", el);
     }
+    
+    
+    public <T> T doInNewTab(Supplier<T> actionInTab, String newTabUrl) {
+        RemoteWebDriver driver = getDriver();
+
+        driver.executeScript(format("window.open('%s');", tabUrl));
+        String initialHandle = driver.getWindowHandle();
+        List<String> handles = new ArrayList<>(driver.getWindowHandles());
+        driver.switchTo().window(handles.get(handles.size() - 1));
+        try {
+            return action.get();
+        } finally {
+            driver.close();
+            driver.switchTo().window(initialHandle);
+        }
+    }
 }
