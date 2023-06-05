@@ -12,17 +12,14 @@ import java.util.stream.Collectors;
 /**
  * Provide fluent interface for common Regex operations. Most cases can be done in one line with proper error handling:
  *
- * <li>rgx("\\d+").match("abc123xxx456").get() -> returns "123"
- * <li>rgx("\\d+").match("abc123xxx456").matchAllAsString() -> returns ["123", "456"]
- * <li>rgx("xxx(\\d+)").match("abc123xxx456").group(1) -> returns "456"
- * <li>rgx("yyy").match("abc123xxx456").isPresent() -> returns false;
- * <li>Also throwing detailed errors:
- * <li>rgx("yyy").match("abc123xxx456").throwIfEmpty() -> throws "Not found pattern 'yyy' in text
- *     abc123xxx456"
- * <li>rgx("yyy").match("abc123xxx456").get() -> throws "Not found pattern 'yyy' in text
- *     abc123xxx456"
- * <li>rgx("xxx(\\d+)").match("abc123xxx456").group(3) -> "throws Match doesn't contain group: 3.
- *     Total groups are: 1"
+ * <p>rgx("\\d+").match("abc123xxx456").get() -> returns "123"
+ * <p>rgx("\\d+").match("abc123xxx456").matchAllAsString() -> returns ["123", "456"]
+ * <p>rgx("xxx(\\d+)").match("abc123xxx456").group(1) -> returns "456"
+ * <p>rgx("yyy").match("abc123xxx456").isPresent() -> returns false;
+ * <p>Also throwing detailed errors:
+ * <p>rgx("yyy").match("abc123xxx456").throwIfEmpty() -> throws "Not found pattern 'yyy' in text 'abc123xxx456'"
+ * <p>rgx("yyy").match("abc123xxx456").get() -> throws "Not found pattern 'yyy' in text 'abc123xxx456'"
+ * <p>rgx("xxx(\\d+)").match("abc123xxx456").group(3) -> "throws Match doesn't contain group: 3. Total groups are: 1"
  */
 @RequiredArgsConstructor
 public class Rgx {

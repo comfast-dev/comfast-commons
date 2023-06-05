@@ -1,3 +1,5 @@
+import java.net.URI
+
 plugins {
     id("java")
     id("java-library")
@@ -7,7 +9,8 @@ plugins {
     id("io.freefair.lombok") version "8.0.1"
 }
 
-version = "0.2"
+group = "dev.comfast"
+version = "0.2.1-SNAPSHOT"
 
 dependencies {
     implementation("org.jetbrains:annotations:24.0.0")
@@ -42,19 +45,70 @@ tasks.withType<JavaCompile> {
 //    options.isWarnings = true
 }
 
+tasks.javadoc {
+    if (JavaVersion.current().isJava9Compatible) {
+        (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
+    }
+}
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = "dev.comfast"
-            from(components["java"])
+            artifactId = "comfast-commons"
 
-            versionMapping {
-                usage("java-api") { fromResolutionOf("runtimeClasspath") }
-                usage("java-runtime") { fromResolutionResult() }
+            pom {
+                name.set("Comfast commons")
+                description.set("Base java toolset used commonly in projects")
+                url.set("https://comfast.dev/open-source")
+                licenses {
+                    license {
+                        name.set("GNU Affero General Public License v3.0")
+                        url.set("https://www.gnu.org/licenses/agpl-3.0.en.html")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("piotrkluz")
+                        name.set("Piotr Kluz")
+                        email.set("piox89@gmail.com")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:git://github.com:comfast-dev/comfast-commons.git")
+                    developerConnection.set("scm:git:git://github.com:comfast-dev/comfast-commons.git")
+                    url.set("https://github.com/comfast-dev/comfast-commons")
+                }
             }
+            from(components["java"])
         }
     }
     repositories {
         mavenLocal()
+        maven {
+            name = "OSSRH"
+            url = if(project.version.toString().endsWith("-SNAPSHOT"))
+                URI.create("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            else URI.create("https://s01.oss.sonatype.org/content/repositories/releases/")
+
+
+            val ossrhUsername: String? by project
+            val ossrhPassword: String? by project
+            credentials {
+                username = ossrhUsername ?: System.getenv("MAVEN_USERNAME")
+                password = ossrhPassword ?: System.getenv("MAVEN_PASSWORD")
+            }
+        }
+    }
+}
+
+signing {
+    useGpgCmd()
+    sign(publishing.publications["maven"])
+}
+
+tasks.javadoc {
+    if (JavaVersion.current().isJava9Compatible) {
+        (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
     }
 }
