@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.stream.Stream;
 
 import static dev.comfast.errors.ErrorKit._fail;
+import static dev.comfast.errors.ErrorKit.rethrow;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
@@ -30,8 +31,14 @@ class ErrorKitTest {
     }
 
     @Test
-    public void rethrowTest() {
-        assertThatThrownBy(() -> ErrorKit.rethrow(this::failInStream, "Additional error message"))
+    public void rethrowPassTest() {
+        var result = rethrow(() -> "all is fine", "error msg never happen");
+        assertThat(result).isEqualTo("all is fine");
+    }
+
+    @Test
+    public void rethrowFailTest() {
+        assertThatThrownBy(() -> rethrow(this::failInStream, "Additional error message"))
             .hasMessage("Additional error message")
             .isInstanceOf(RuntimeException.class)
             .hasRootCauseMessage(EXPECTED_ERROR_MSG)

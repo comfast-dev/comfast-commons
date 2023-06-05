@@ -2,8 +2,6 @@ package dev.comfast.rgx;
 
 import lombok.RequiredArgsConstructor;
 
-import static java.lang.String.format;
-
 /**
  * Represent one Regex match. Can be empty.
  */
