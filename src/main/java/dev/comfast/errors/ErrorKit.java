@@ -11,7 +11,7 @@ public class ErrorKit {
      * <li> found = someStream.findFirst().orElseThrow(_fail("Not found '%s'", someParam))
      */
     public static Supplier<RuntimeException> _fail(String errorMsg, Object... msgParams) {
-        return () -> new Fail(errorMsg, msgParams);
+        return () -> new RuntimeException(format(errorMsg, msgParams));
     }
 
     /**

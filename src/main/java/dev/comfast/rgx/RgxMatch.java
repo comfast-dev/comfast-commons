@@ -1,6 +1,5 @@
 package dev.comfast.rgx;
 
-import dev.comfast.errors.Fail;
 import lombok.RequiredArgsConstructor;
 
 import static java.lang.String.format;
@@ -69,16 +68,17 @@ public class RgxMatch {
     }
 
     /**
-     * @param failMsg OPTIONAL, if empty will throw only cause Exception
+     * @param failMsg will throw only cause Exception
      * @param msgArgs printf arguments for failMsg
+     * @return this
      */
     public RgxMatch throwIfEmpty(String failMsg, Object... msgArgs) {
         if (isPresent()) return this;
 
-        RgxNotFound cause = new RgxNotFound(format("Not found pattern '%s' in text:\n%s", pattern, shortInput()));
+        RgxNotFound cause = new RgxNotFound("Not found pattern '%s' in text:\n%s", pattern, shortInput());
         throw failMsg == null || failMsg.isEmpty()
               ? cause :
-              new Fail(format(failMsg, msgArgs), cause);
+              new RgxNotFound(failMsg, cause, msgArgs);
     }
 
     private String shortInput() {
