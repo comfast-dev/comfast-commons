@@ -42,7 +42,7 @@ public class Rgx {
     /** @return Nth group from all matches. */
     public List<String> matchAllAsString(String inputText, int nthGroup) {
         return matchAll(inputText).stream()
-                .map(rgxMatch -> rgxMatch.group(nthGroup))
+                .map(rgxMatch -> rgxMatch.get(nthGroup))
                 .collect(Collectors.toList());
     }
 

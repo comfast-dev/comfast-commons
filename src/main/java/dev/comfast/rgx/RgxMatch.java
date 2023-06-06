@@ -20,21 +20,21 @@ public class RgxMatch {
      * @return entire match.
      */
     public String get() {
-        return group(0);
+        return get(0);
     }
 
     /**
      * @return nth match group.
      */
-    public String group(int nth) {
+    public String get(int nthGroup) {
         throwIfEmpty();
-        if (foundGroups.length <= nth) {
+        if (foundGroups.length <= nthGroup) {
             throw new RgxNotFound(
                     "Match doesn't contain group #%d in %d total groups\n" +
                     "Match found by pattern '%s' in input:\n%s",
-                    nth, foundGroups.length - 1, pattern, shortInput());
+                nthGroup, foundGroups.length - 1, pattern, shortInput());
         }
-        return foundGroups[nth];
+        return foundGroups[nthGroup];
     }
 
     /**
@@ -54,8 +54,22 @@ public class RgxMatch {
     /**
      * @return entire match or else default value
      */
-    public String orElse(String elseValue) {
-        return isPresent() ? get() : elseValue;
+    public String getOrElse(String elseValue) {
+        return getOrElse(0, elseValue);
+    }
+
+    /**
+     * @param nthGroup group number, where 0 is entire match
+     * @param elseValue else default value
+     * @return nthGroup or else default value
+     */
+    public String getOrElse(int nthGroup, String elseValue) {
+        if(isEmpty()) return elseValue;
+
+        var group = get(nthGroup);
+        return group == null // situation where group is optional e.g. // (abc)?
+               ? elseValue
+               : group;
     }
 
     /**

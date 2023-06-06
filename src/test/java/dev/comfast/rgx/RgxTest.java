@@ -28,19 +28,19 @@ class RgxTest {
         //then
         assertThat(matches.get(0).get()).isEqualTo("abc");
         assertThat(matches.get(1).get()).isEqualTo("acc");
-        assertThat(matches.get(0).group(1)).isEqualTo("b");
-        assertThat(matches.get(1).group(1)).isEqualTo("c");
+        assertThat(matches.get(0).get(1)).isEqualTo("b");
+        assertThat(matches.get(1).get(1)).isEqualTo("c");
     }
 
     @Test void throwIfEmptyDoesNotThrowTest() {
         RgxMatch match = passRgx.match(TEXT);
 
         assertThat(match.throwIfEmpty().get()).isEqualTo("abc");
-        assertThat(match.throwIfEmpty().group(1)).isEqualTo("b");
+        assertThat(match.throwIfEmpty().get(1)).isEqualTo("b");
         assertThat(match.throwIfEmpty().isPresent()).isTrue();
 
         assertThat(match.throwIfEmpty("oh no").get()).isEqualTo("abc");
-        assertThat(match.throwIfEmpty("oh no").group(1)).isEqualTo("b");
+        assertThat(match.throwIfEmpty("oh no").get(1)).isEqualTo("b");
         assertThat(match.throwIfEmpty("oh no").isPresent()).isTrue();
     }
 
@@ -73,7 +73,7 @@ class RgxTest {
             .hasMessageContaining(errorMsg);
 
         //group(#)
-        assertThatThrownBy(() -> failRgx.match(TEXT).group(2))
+        assertThatThrownBy(() -> failRgx.match(TEXT).get(2))
             .isInstanceOf(RgxNotFound.class)
             .hasMessageContaining(errorMsg);
 
@@ -91,9 +91,31 @@ class RgxTest {
     }
 
     @Test void notFoundGroupFail() {
-        assertThatThrownBy(() -> passRgx.match(TEXT).group(3))
+        assertThatThrownBy(() -> passRgx.match(TEXT).get(3))
             .isInstanceOf(RgxNotFound.class)
             .hasMessageContaining("Match doesn't contain group #3 in 1 total groups");
+    }
+
+    @Test void getOrElseTest() {
+        final String ELSE = "elseValue";
+        final String GROUP1 = "abc";
+        final String GROUP2 = "xxx"; //optional group
+        final var rgx = rgx("(abc)(xxx)?");
+
+        var found = rgx.match("abcxxx");
+        var optionalGroupIsNull = rgx.match("abc");
+        var notFound = rgx.match("differentText");
+
+        assertThat(found.getOrElse(ELSE)).isEqualTo(GROUP1 + GROUP2);
+        assertThat(found.getOrElse(2, ELSE)).isEqualTo(GROUP2);
+
+        assertThat(optionalGroupIsNull.getOrElse(ELSE)).isEqualTo(GROUP1);
+        assertThat(optionalGroupIsNull.getOrElse(2, ELSE)).isEqualTo(ELSE);
+        assertThatThrownBy(() -> optionalGroupIsNull.getOrElse(3, ""))
+            .hasMessageContaining("Match doesn't contain group #3 in 2 total groups");
+
+        assertThat(notFound.getOrElse(ELSE)).isEqualTo(ELSE);
+        assertThat(notFound.getOrElse(2, ELSE)).isEqualTo(ELSE);
     }
 
     @Test void flagsUsage() {
