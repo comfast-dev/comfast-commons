@@ -10,21 +10,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * Provide fluent interface for common Regex operations. Most cases can be done in one line with proper error handling:
- *
- * <p>rgx("\\d+").match("abc123xxx456").get() -> returns "123"
- * <p>rgx("\\d+").match("abc123xxx456").matchAllAsString() -> returns ["123", "456"]
- * <p>rgx("xxx(\\d+)").match("abc123xxx456").group(1) -> returns "456"
- * <p>rgx("yyy").match("abc123xxx456").isPresent() -> returns false;
- * <p>Also throwing detailed errors:
- * <p>rgx("yyy").match("abc123xxx456").throwIfEmpty() -> throws "Not found pattern 'yyy' in text 'abc123xxx456'"
- * <p>rgx("yyy").match("abc123xxx456").get() -> throws "Not found pattern 'yyy' in text 'abc123xxx456'"
- * <p>rgx("xxx(\\d+)").match("abc123xxx456").group(3) -> "throws Match doesn't contain group: 3. Total groups are: 1"
+ * {@link RgxApi}
  */
 @RequiredArgsConstructor
 public class Rgx {
-    @Language("regexp")
-    public final String pattern;
+    @Language("regexp") public final String pattern;
     private int flags = 0;
 
     /**
@@ -50,19 +40,19 @@ public class Rgx {
     }
 
     /** @return Nth group from all matches. */
-    public List<String> matchAllAsString(String input, int nthGroup) {
-        return matchAll(input).stream()
+    public List<String> matchAllAsString(String inputText, int nthGroup) {
+        return matchAll(inputText).stream()
                 .map(rgxMatch -> rgxMatch.group(nthGroup))
                 .collect(Collectors.toList());
     }
 
     /** @return All matches list. */
-    public List<RgxMatch> matchAll(String input) {
-        Matcher m = Pattern.compile(pattern, flags).matcher(input);
+    public List<RgxMatch> matchAll(String inputText) {
+        Matcher m = Pattern.compile(pattern, flags).matcher(inputText);
 
         List<RgxMatch> list = new ArrayList<>();
         while (m.find()) {
-            list.add(new RgxMatch(readGroups(m), pattern, input));
+            list.add(new RgxMatch(readGroups(m), pattern, inputText));
         }
 
         return list;
@@ -73,10 +63,14 @@ public class Rgx {
         return pattern;
     }
 
-    private String[] readGroups(Matcher m) {
-        String[] groups = new String[m.groupCount() + 1];
+    /**
+     * @param matcher matcher
+     * @return All capturing groups
+     */
+    private String[] readGroups(Matcher matcher) {
+        String[] groups = new String[matcher.groupCount() + 1];
         for (int i = 0; i < groups.length; i++) {
-            groups[i] = m.group(i);
+            groups[i] = matcher.group(i);
         }
 
         return groups;

@@ -10,10 +10,9 @@ plugins {
 }
 
 group = "dev.comfast"
-version = "0.2.1-SNAPSHOT"
+version = "0.2.2-SNAPSHOT"
 
 dependencies {
-    implementation("org.jetbrains:annotations:24.0.0")
     compileOnly("org.jetbrains:annotations:24.0.1")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
@@ -31,7 +30,7 @@ java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
 
-//    withJavadocJar()
+    withJavadocJar()
     withSourcesJar()
 }
 
@@ -47,16 +46,15 @@ tasks.withType<JavaCompile> {
 
 tasks.javadoc {
     if (JavaVersion.current().isJava9Compatible) {
-        (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
+        val opts = (options as StandardJavadocDocletOptions)
+        opts.addBooleanOption("html5", true)
+        opts.addStringOption("Xdoclint:none", "-quiet")
     }
 }
 
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "dev.comfast"
-            artifactId = "comfast-commons"
-
             pom {
                 name.set("Comfast commons")
                 description.set("Base java toolset used commonly in projects")
@@ -84,13 +82,11 @@ publishing {
         }
     }
     repositories {
-        mavenLocal()
         maven {
             name = "OSSRH"
-            url = if(project.version.toString().endsWith("-SNAPSHOT"))
+            url = if (project.version.toString().endsWith("-SNAPSHOT"))
                 URI.create("https://s01.oss.sonatype.org/content/repositories/snapshots/")
             else URI.create("https://s01.oss.sonatype.org/content/repositories/releases/")
-
 
             val ossrhUsername: String? by project
             val ossrhPassword: String? by project
@@ -105,10 +101,4 @@ publishing {
 signing {
     useGpgCmd()
     sign(publishing.publications["maven"])
-}
-
-tasks.javadoc {
-    if (JavaVersion.current().isJava9Compatible) {
-        (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
-    }
 }

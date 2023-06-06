@@ -1,5 +1,4 @@
 package dev.comfast.errors;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.stream.Stream;
@@ -25,7 +24,7 @@ class ErrorKitTest {
 
     @Test
     public void failUsageInOptional() {
-        Assertions.assertThatThrownBy(this::failInStream)
+        assertThatThrownBy(this::failInStream)
             .hasMessageContaining(EXPECTED_ERROR_MSG)
             .isInstanceOf(RuntimeException.class);
     }

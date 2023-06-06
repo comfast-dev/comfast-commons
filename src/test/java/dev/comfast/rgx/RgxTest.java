@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static dev.comfast.rgx.RgxApi.rgx;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
+import static java.util.regex.Pattern.DOTALL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -92,5 +94,11 @@ class RgxTest {
         assertThatThrownBy(() -> passRgx.match(TEXT).group(3))
             .isInstanceOf(RgxNotFound.class)
             .hasMessageContaining("Match doesn't contain group #3 in 1 total groups");
+    }
+
+    @Test void flagsUsage() {
+        var result = rgx("ABC.+DEF", CASE_INSENSITIVE | DOTALL).match("abc \n def").get();
+
+        assertThat(result).isEqualTo("abc \n def");
     }
 }
