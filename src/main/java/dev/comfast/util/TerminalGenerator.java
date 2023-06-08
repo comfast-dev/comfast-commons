@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.comfast.util.Utils.fixedLength;
 import static dev.comfast.util.Utils.transposeMatrix;
 import static java.lang.String.join;
 import static java.util.stream.Collectors.joining;
@@ -83,5 +82,12 @@ public class TerminalGenerator {
         return strings.stream()
             .map(s -> fixedLength(s, MAX_LENGTH))
             .collect(toList());
+    }
+
+    /**
+     * Add spaces or trim the String to given length e.g.
+     */
+    @NotNull public String fixedLength(String input, int LENGTH) {
+        return String.format("%-" + LENGTH + "s", input).substring(0, LENGTH);
     }
 }

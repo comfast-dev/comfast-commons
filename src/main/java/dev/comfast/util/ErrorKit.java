@@ -1,4 +1,4 @@
-package dev.comfast.errors;
+package dev.comfast.util;
 import lombok.SneakyThrows;
 
 import java.util.function.Supplier;
