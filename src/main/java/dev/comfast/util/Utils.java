@@ -1,6 +1,5 @@
 package dev.comfast.util;
 import lombok.SneakyThrows;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -73,6 +72,22 @@ public class Utils {
         } finally {
             if(restoreValue == null) clearProperty(systemPropertyName);
             else setProperty(systemPropertyName, restoreValue);
+        }
+    }
+
+    /**
+     * @param input any object
+     * @return false if null, false, 0, trimmed empty string
+     */
+    public static boolean isTruthly(Object input) {
+        if(input == null) return false;
+        switch(input.toString().trim()) {
+            case "":
+            case "false":
+            case "0":
+            case "0.0":
+                return false;
+            default: return true;
         }
     }
 }

@@ -3,6 +3,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static dev.comfast.util.Utils.isTruthly;
 import static dev.comfast.util.Utils.transposeMatrix;
 import static dev.comfast.util.Utils.trimString;
 import static dev.comfast.util.Utils.withSystemProp;
@@ -46,5 +47,24 @@ class UtilsTest {
         withSystemProp(KEY, () -> System.clearProperty(KEY));
         assertThat(System.getProperty(KEY))
             .isEqualTo(VALUE);
+    }
+
+    @Test
+    void isTruthlyTest() {
+        assertThat(isTruthly(null)).as("null").isFalse();
+        assertThat(isTruthly(0)).as("int 0").isFalse();
+        assertThat(isTruthly(0L)).as("long 0").isFalse();
+        assertThat(isTruthly(0.0f)).as("float 0").isFalse();
+        assertThat(isTruthly(0.0d)).as("double 0").isFalse();
+        assertThat(isTruthly("false")).as("string: 'false'").isFalse();
+        assertThat(isTruthly("")).as("empty string").isFalse();
+        assertThat(isTruthly("0")).as("string: '0'").isFalse();
+        assertThat(isTruthly("0.0")).as("string: '0.0'").isFalse();
+
+        assertThat(isTruthly("1")).as("string: '1'").isTrue();
+        assertThat(isTruthly(1)).as("int: 1").isTrue();
+        assertThat(isTruthly(-1)).as("int: -1").isTrue();
+        assertThat(isTruthly(1L)).as("long: '1'").isTrue();
+        assertThat(isTruthly(0.001f)).as("float: '0.001'").isTrue();
     }
 }
