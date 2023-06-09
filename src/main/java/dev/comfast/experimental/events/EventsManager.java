@@ -9,12 +9,12 @@ import java.util.function.Supplier;
 import static lombok.AccessLevel.PACKAGE;
 
 /**
- * Manager for events. Please use {@link EventsApi#get(String)} to create instances of this class.
+ * Manager for events. Please use {@link EventsApi#get(String, Class)} to create instances of this class.
  * @param <EventContext> Class which will be passed in every event.
  */
 @ApiStatus.Experimental
 @RequiredArgsConstructor(access = PACKAGE)
-class EventsManager<EventContext> {
+public class EventsManager<EventContext> {
     private final Map<String, EventListener<EventContext>> listeners = new HashMap<>();
 
     public void addListener(String listenerName, EventListener<EventContext> listener) {

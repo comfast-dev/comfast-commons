@@ -20,7 +20,7 @@ public class EventsApi {
      * @return EventsManager
      * @param <EventContext> Class which will be passed in every event.
      */
-    public static <EventContext> EventsManager<EventContext> get(String eventManagerName) {
+    public static <EventContext> EventsManager<EventContext> get(String eventManagerName, Class<EventContext> contextClass) {
         //noinspection unchecked
         return (EventsManager<EventContext>) eventManagers.computeIfAbsent(eventManagerName, name -> new EventsManager<>());
     }

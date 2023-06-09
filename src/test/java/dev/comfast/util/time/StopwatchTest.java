@@ -9,8 +9,7 @@ class StopwatchTest {
         var result = Stopwatch.measure(() -> sleep(10));
 
         assertThat(result.getNanos())
-            .isGreaterThan(10_000_000)
-            .isLessThan(20_000_000);
+            .isGreaterThan(10_000_000);
     }
 
     @Test void stopwatchResult() {

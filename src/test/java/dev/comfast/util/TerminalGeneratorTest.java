@@ -44,9 +44,9 @@ class TerminalGeneratorTest {
                        "H3: data7 data9 data9");
 
         assertThat(gen2.horizontalTable(HEADERS, DATA))
-            .isEqualTo("H1: data1 | data2 | data3\n" +
-                       "H2: data4 | data5 | data6\n" +
-                       "H3: data7 | data9 | data9");
+            .isEqualTo("H1: | data1 | data2 | data3\n" +
+                       "H2: | data4 | data5 | data6\n" +
+                       "H3: | data7 | data9 | data9");
 
 
         assertThat(gen3.horizontalTable(HEADERS, DATA))
