@@ -15,6 +15,10 @@ version = "0.2.2-SNAPSHOT"
 dependencies {
     compileOnly("org.jetbrains:annotations:24.0.1")
 
+    // used by config
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.14.1")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2")
+
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
     testImplementation("org.assertj:assertj-core:3.24.2")
 }
