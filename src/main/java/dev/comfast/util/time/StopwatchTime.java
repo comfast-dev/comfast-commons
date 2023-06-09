@@ -27,4 +27,8 @@ public class StopwatchTime {
     public long getNanos() {
         return endTimeNs - startTimeNs;
     }
+
+    public long getMillis() {
+        return getNanos() / 1_000_000;
+    }
 }

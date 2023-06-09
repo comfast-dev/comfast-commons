@@ -50,7 +50,7 @@ public class TempFile {
     }
 
     /**
-     * Add shutdown hook that will try to remove file after main thread.
+     * Add shutdown hook that will try to remove file after main thread end.
      */
     private void addAutoRemoveHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(

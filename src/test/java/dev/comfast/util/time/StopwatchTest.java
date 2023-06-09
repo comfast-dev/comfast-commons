@@ -30,8 +30,8 @@ class StopwatchTest {
         assertThat(result.endTimeNs)
             .isGreaterThan(BEFORE_NS)
             .isLessThan(System.nanoTime());
-        assertThat(result.getDuration().toMillis())
-            .isLessThan(MAX_DELAY_MS);
+        assertThat(result.getDuration().toMillis()).isLessThan(MAX_DELAY_MS);
+        assertThat(result.getDuration().toMillis()).isEqualTo(result.getMillis());
 
         var result2ndLap = stopwatch.time();
         assertThat(result2ndLap.startTimestamp).isEqualTo(result.startTimestamp);

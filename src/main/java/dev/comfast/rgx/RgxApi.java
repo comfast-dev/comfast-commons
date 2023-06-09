@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
  * rgx("yyy").match("abc123xxx456").get() // throws "Not found pattern 'yyy' in text 'abc123xxx456'"
  * rgx("xxx(\\d+)").match("abc123xxx456").group(3) // "throws Match doesn't contain group: 3. Total groups are: 1"
  * }</pre>
+ * @see RgxMatch
  */
 public class RgxApi {
     /**

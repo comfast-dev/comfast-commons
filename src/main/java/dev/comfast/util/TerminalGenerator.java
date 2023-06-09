@@ -27,10 +27,11 @@ public class TerminalGenerator {
 
     /**
      * Generates table like: <pre>{@code
-     * H1    H2     H3
-     * data1 data2 data3
-     * data4 data5 data6
-     * data7 data9 data9
+     * H1     H2     H3
+     * data1  data2  data3
+     * data4  data5  data6
+     * data7  data9  data9
+     * data10 data11 data12
      * ...
      * }
      */
@@ -46,9 +47,9 @@ public class TerminalGenerator {
 
     /**
      * Generates table like:<pre>{@code
-     * H1 data1 data2 data3 ...
-     * H2 data4 data5 data6 ...
-     * H3 data7 data9 data9 ...
+     * H1 data1 data2 data3 data4
+     * H2 data5 data6 data7 data8
+     * H3 data9 data10 data11 data12
      * }
      */
     public String horizontalTable(List<String> rowHeaders, List<List<String>> dataRows) {
@@ -87,7 +88,7 @@ public class TerminalGenerator {
     /**
      * Add spaces or trim the String to given length e.g.
      */
-    @NotNull public String fixedLength(String input, int LENGTH) {
+    @NotNull private String fixedLength(String input, int LENGTH) {
         return String.format("%-" + LENGTH + "s", input).substring(0, LENGTH);
     }
 }

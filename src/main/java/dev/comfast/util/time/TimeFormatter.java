@@ -11,7 +11,7 @@ import static java.lang.Double.parseDouble;
 public class TimeFormatter {
     /**
      * Format any duration into human-friendly format e.g.
-     * "120ns", vcgf"400µs", "10ms", "30s", "3h 20m 10s"
+     * "120ns", "400µs", "10ms", "30s", "3h 20m 10s"
      * @param duration input duraiton
      * @return formatted string
      */
