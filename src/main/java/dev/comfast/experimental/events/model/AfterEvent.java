@@ -5,13 +5,13 @@ import lombok.Getter;
 import static java.lang.String.format;
 
 @Getter
-public class AfterEvent<EventContext> extends Event<EventContext> {
+public class AfterEvent<T> extends Event<T> {
     public final StopwatchTime time;
     public final Object result;
 
-    public AfterEvent(Event<EventContext> parent, Object result) {
-        super(parent.context, parent.actionName, parent.actionParams, parent.stopwatch);
-        time = parent.stopwatch.time();
+    public AfterEvent(T eventContext , String actionName, Object[] actionParams, StopwatchTime time, Object result) {
+        super(eventContext, actionName, actionParams);
+        this.time = time;
         this.result = result;
     }
 

@@ -1,6 +1,6 @@
 package dev.comfast.experimental.events;
 import dev.comfast.experimental.events.model.AfterEvent;
-import dev.comfast.experimental.events.model.Event;
+import dev.comfast.experimental.events.model.BeforeEvent;
 import dev.comfast.experimental.events.model.FailedEvent;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +14,7 @@ class EventInfoTest {
     final String MY_RESULT = "WORLD";
 
     @Test void createEvent() {
-        var event = new Event<>(MY_CONTEXT, MY_ACTION, "lol");
+        var event = new BeforeEvent<>(MY_CONTEXT, MY_ACTION, "lol");
         assertAll(
             () -> assertEquals(MY_CONTEXT, event.context),
             () -> assertEquals(MY_ACTION, event.actionName),
@@ -23,7 +23,7 @@ class EventInfoTest {
     }
 
     @Test void passEvent() {
-        var beforeEvent = new Event<>(MY_CONTEXT, MY_ACTION);
+        var beforeEvent = new BeforeEvent<>(MY_CONTEXT, MY_ACTION);
         var event = beforeEvent.passed(MY_RESULT);
 
         assertAll(
@@ -35,7 +35,7 @@ class EventInfoTest {
     }
 
     @Test void failEvent() {
-        var beforeEvent = new Event<>(MY_CONTEXT, MY_ACTION);
+        var beforeEvent = new BeforeEvent<>(MY_CONTEXT, MY_ACTION);
         var event = beforeEvent.failed(new RuntimeException("oh no"));
         assertAll(
             () -> assertEquals(FailedEvent.class, event.getClass()),

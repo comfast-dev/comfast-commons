@@ -1,5 +1,6 @@
 package dev.comfast.experimental.events;
 import dev.comfast.experimental.events.model.AfterEvent;
+import dev.comfast.experimental.events.model.BeforeEvent;
 import dev.comfast.experimental.events.model.Event;
 import dev.comfast.experimental.events.model.FailedEvent;
 import lombok.SneakyThrows;
@@ -16,42 +17,43 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class EventsManagerTest {
     public static final String EXCEPTION_MESSAGE = "oh no!";
     EventsManager<EventsManagerTest> events;
-    List<String> testEventOut = new ArrayList<>();
+    List<String> testEventsOut = new ArrayList<>();
     List<Event<?>> afterEvents = new ArrayList<>();
 
     @BeforeEach
     void init() {
         events = new EventsManager<>();
-        testEventOut.clear();
+        testEventsOut.clear();
     }
 
     @Test void noListeners() {
-        events.action(new Event<>(this, "let's do it"), this::doSomething);
+        events.action(new BeforeEvent<>(this, "let's do it"), this::doSomething);
+        assertIterableEquals(testEventsOut, List.of());
     }
 
     @SneakyThrows
     private void doSomething() {
-        Thread.sleep(1);
+        //something
     }
 
     @Test void listen() {
         events.addListener("myListener", new EventListener<>() {
-            @Override public void before(Event<EventsManagerTest> event) {
-                testEventOut.add("myListener-before log");
+            @Override public void before(BeforeEvent<EventsManagerTest> event) {
+                testEventsOut.add("myListener-before log");
             }
 
             @Override public void after(AfterEvent<EventsManagerTest> event) {
-                testEventOut.add("myListener-after log");
-                testEventOut.add("status: PASSED");
+                testEventsOut.add("myListener-after log");
+                testEventsOut.add("status: PASSED");
             }
 
             @Override public void failed(FailedEvent<EventsManagerTest> event) {
-                testEventOut.add("myListener-failed log");
+                testEventsOut.add("myListener-failed log");
             }
         });
 
-        events.action(new Event<>(this, "let's do it"), this::doSomething);
-        assertIterableEquals(testEventOut, List.of(
+        events.action(new BeforeEvent<>(this, "let's do it"), this::doSomething);
+        assertIterableEquals(testEventsOut, List.of(
             "myListener-before log",
             "myListener-after log",
             "status: PASSED"
@@ -68,10 +70,10 @@ class EventsManagerTest {
             }
         });
 
-        events.action(new Event<>(this, "ok"), this::doSomething);
-        var catchedError = assertThrows(RuntimeException.class, () -> {
-            events.action(new Event<>(this, "fail here"), this::fail);
-        });
+        events.action(new BeforeEvent<>(this, "ok"), this::doSomething);
+        var event = new BeforeEvent<>(this, "fail here");
+        var catchedError = assertThrows(RuntimeException.class, () ->
+            events.action(event, this::fail));
 
         var eventError = ((FailedEvent<?>)afterEvents.get(1)).error;
         assertEquals(catchedError, eventError);

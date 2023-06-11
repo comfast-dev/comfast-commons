@@ -1,6 +1,6 @@
 package dev.comfast.experimental.events;
 import dev.comfast.experimental.events.model.AfterEvent;
-import dev.comfast.experimental.events.model.Event;
+import dev.comfast.experimental.events.model.BeforeEvent;
 import dev.comfast.experimental.events.model.FailedEvent;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.ApiStatus;
@@ -12,73 +12,102 @@ import java.util.function.Supplier;
 import static lombok.AccessLevel.PACKAGE;
 
 /**
- * Manager for events. Please use {@link EventsApi#get(String, Class)} to create instances of this class.
- * @param <EventContext> Class which will be passed in every event.
+ * Manager for events. Please use {@link EventsApi#get(String, Class)} to create/get instances of this class.
+ *
+ * @param <T> Class which will be passed in every event.
  */
 @ApiStatus.Experimental
 @RequiredArgsConstructor(access = PACKAGE)
-public class EventsManager<EventContext> {
-    private final Map<String, EventListener<EventContext>> listeners = new HashMap<>();
+public class EventsManager<T> {
+    private final Map<String, EventListener<T>> eventListeners = new HashMap<>();
 
-    public void addListener(String listenerName, EventListener<EventContext> listener) {
-        if(listenerName.isEmpty()) throw new RuntimeException("Listener name should be not empty.");
-        if(listener == null) throw new RuntimeException("Listener should not be null.");
+    /**
+     * Add listener to this manager.
+     * @param listenerKey Unique key to access / remove listener
+     * @param listener Listener instance
+     */
+    public void addListener(String listenerKey, EventListener<T> listener) {
+        if(listenerKey.isEmpty()) throw new InvalidEventConfiguration("Listener name should be not empty.");
+        if(listener == null) throw new InvalidEventConfiguration("Listener should not be null.");
 
-        listeners.put(listenerName, listener);
+        eventListeners.put(listenerKey, listener);
     }
 
+    /**
+     * Remove listener by its key
+     */
     public void removeListener(String name) {
-        listeners.remove(name);
+        eventListeners.remove(name);
     }
 
     /**
-     * Manually call given event, that will notify all listeners. e.g. <pre>{@code
-     * var event = new BeforeEvent(null, "myAction");
-     * myManager.callEvent(event); //call before event
-     * //do some stuff, that is our action
-     * myManager.callEvent(event.passed("OK")); //call After event
+     * Notify all event listeners about failed event.
+     * <pre>{@code
+     * var beforeEvent = new BeforeEvent<>(null, "someAction");
+     * manager.notifyBefore(beforeEvent);
+     * // do someAction()
      * }</pre>
-     * @param event BeforeEvent created just before action
      */
-    public void callEvent(Event<EventContext> event) {
-        for(var listener : listeners.values()) listener.before(event);
+    public void notifyBefore(BeforeEvent<T> e) {
+        eventListeners.values().forEach(l -> l.before(e));
     }
 
     /**
-     * @see EventsManager#callEvent(Event)
+     * Notify all event listeners about failed event.
+     * <pre>{@code
+     * var beforeEvent = new BeforeEvent<>(null, "someAction");
+     * manager.notifyBefore(beforeEvent);
+     * var someResult = someAction();
+     * manager.notifyAfter(beforeEvent.passed(someResult));
+     * }</pre>
      */
-    public void callEvent(AfterEvent<EventContext> event) {
-        for(var listener : listeners.values()) listener.after(event);
+    public void notifyAfter(AfterEvent<T> e) {
+        eventListeners.values().forEach(l -> l.after(e));
     }
 
     /**
-     * @see EventsManager#callEvent(Event)
+     * Notify all event listeners about failed event.
+     * <pre>{@code
+     * var beforeEvent = new BeforeEvent<>(null, "someAction");
+     * manager.notifyBefore(beforeEvent);
+     * try { something failed }
+     * catch(Exception e) {
+     *    manager.notifyFailed(beforeEvent.failed(e));
+     *    throw e;
+     * }
+     * }</pre>
      */
-    public void callEvent(FailedEvent<EventContext> event) {
-        for(var listener : listeners.values()) listener.failed(event);
+    public void notifyFailed(FailedEvent<T> e) {
+        eventListeners.values().forEach(l -> l.failed(e));
     }
 
-    /** @see #action(Event, Supplier) */
-    public void action(Event<EventContext> event, Runnable actionFunc) {
+    /**
+     * Embed action between events: "before", "after" and "failed".
+     * @see #action(BeforeEvent, Supplier)
+     */
+    public void action(BeforeEvent<T> event, Runnable actionFunc) {
         action(event, () -> {actionFunc.run(); return "done";});
     }
 
     /**
-     * Calls all listeners before, run the action and call after action events.
+     * Embed action between events: "before", "after" and "failed".
+     * <p>Capture action result to be available in AfterEvent</p>
+     *
      * @param event new instance of BeforeEvent. Created it just before action call.
      * @param actionFunc action to call
-     * @param <T> type of action result
+     * @param <R> type of action result
      * @return action result
      */
-    public <T> T action(Event<EventContext> event, Supplier<T> actionFunc) {
-        callEvent(event);
+    public <R> R action(BeforeEvent<T> event, Supplier<R> actionFunc) {
+        R result;
+        notifyBefore(event);
         try {
-            var result = actionFunc.get();
-            callEvent(event.passed(result));
-            return result;
-        } catch(Throwable e) {
-            callEvent(event.failed(e));
+            result = actionFunc.get();
+        } catch(Exception e) {
+            notifyFailed(event.failed(e));
             throw e;
         }
+        notifyAfter(event.passed(result));
+        return result;
     }
 }

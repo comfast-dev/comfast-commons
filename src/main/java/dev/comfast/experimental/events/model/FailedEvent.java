@@ -5,13 +5,13 @@ import lombok.Getter;
 import static java.lang.String.format;
 
 @Getter
-public class FailedEvent<EventContext> extends Event<EventContext> {
+public class FailedEvent<T> extends Event<T> {
     public final StopwatchTime time;
     public final Throwable error;
 
-    public FailedEvent(Event<EventContext> parent, Throwable error) {
-        super(parent.context, parent.actionName, parent.actionParams, parent.stopwatch);
-        time = parent.stopwatch.time();
+    public FailedEvent(T eventContext, String actionName, Object[] actionParams, StopwatchTime time, Throwable error) {
+        super(eventContext, actionName, actionParams);
+        this.time = time;
         this.error = error;
     }
 
