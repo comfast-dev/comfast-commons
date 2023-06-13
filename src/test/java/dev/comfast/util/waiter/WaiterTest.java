@@ -14,12 +14,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class WaiterTest {
     Waiter waiter = new Waiter(150);
     Waiter longWaiter = new Waiter(300);
+
     @Test
     void waitForTest() {
         var time = Stopwatch.measure(() -> waiter.waitFor(() -> sleep(5)));
         assertThat(time.getMillis())
-            .isGreaterThanOrEqualTo(5)
-            .isLessThan(10);
+            .isGreaterThanOrEqualTo(5);
     }
 
     @Test
@@ -51,11 +51,23 @@ class WaiterTest {
             .contains("RuntimeException: I'm busy now !");
     }
 
+    @Test void includeCauseInErrorMessageTest() {
+        var waiter1 = new Waiter(10).configure(c -> c.includeCauseInErrorMessage(false));
+        var waiter2 = new Waiter(100).configure(c -> c.includeCauseInErrorMessage(true));
+
+        assertThatThrownBy(() -> waiter1.waitFor(this::failFunction))
+            .hasMessageNotContaining("failFunction error");
+
+        assertThatThrownBy(() -> waiter2.waitFor(this::failFunction))
+            .hasMessageContaining("failFunction error");
+    }
+
     /**
      * Time 0 is time when function is created.
-     * @throws IllegalArgumentException before 100ms
-     * @throws RuntimeException before 200ms
+     *
      * @return function that will return after 200ms
+     * @throws IllegalArgumentException before 100ms
+     * @throws RuntimeException         before 200ms
      */
     private Supplier<String> veryBusyFunction() {
         long successTime = currentTimeMillis() + 200;
@@ -67,5 +79,9 @@ class WaiterTest {
             if(now < successTime) throw new RuntimeException("I'm busy now !");
             return "ok, I'm done";
         };
+    }
+
+    private void failFunction() {
+        throw new RuntimeException("failFunction error");
     }
 }

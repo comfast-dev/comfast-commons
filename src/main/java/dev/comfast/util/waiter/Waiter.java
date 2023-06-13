@@ -3,6 +3,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import static dev.comfast.util.Utils.isTruthly;
 import static dev.comfast.util.Utils.sleep;
@@ -10,10 +11,20 @@ import static java.lang.String.format;
 
 @RequiredArgsConstructor
 public class Waiter {
-    private final WaiterConfig conf;
+    private WaiterConfig conf;
 
     public Waiter(long timeoutMs) {
-        conf = new WaiterConfig(timeoutMs, 50, 5000, 5, "");
+        conf = new WaiterConfig(timeoutMs, 50, 5000, 5, "", true);
+    }
+
+    /**
+     * Updates waiter config. Example <pre>{@code
+     * waiter.configure(c -> c.description("Custom waiter").timeoutMs(3000))}
+     * </pre>
+     */
+    public Waiter configure(UnaryOperator<WaiterConfig.WaiterConfigBuilder> builderFunc) {
+        conf = builderFunc.apply(conf.toBuilder()).build();
+        return this;
     }
 
     /**
@@ -70,8 +81,11 @@ public class Waiter {
                 sleep(state.getTimeTillNextLoop());
             }
         }
-        throw new WaitTimeout(stats, format("Wait failed after %dms, tried %d times.",
-                conf.timeoutMs, state.getTries()));
+        throw new WaitTimeout(stats, format("Wait failed after %dms, tried %d times.%s",
+            conf.timeoutMs,
+            state.getTries(),
+            conf.includeCauseInErrorMessage ? "Last error:\n" + stats.recentError() : ""
+        ));
     }
 }
 
