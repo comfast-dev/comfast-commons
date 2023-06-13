@@ -3,27 +3,28 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.Nullable;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
-
+import static java.util.stream.Collectors.joining;
 
 @RequiredArgsConstructor
 class ConfigFile {
-    private final static ObjectMapper jsonMapper = new ObjectMapper();
-    private final static ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
-    private final static MapFlatter flatter = new MapFlatter();
+    private static final ObjectMapper jsonMapper = new ObjectMapper();
+    private static final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+    private static final MapFlatter flatter = new MapFlatter();
     /**
      * in root project path or resources path
      */
@@ -57,18 +58,15 @@ class ConfigFile {
      * @param fileName config file name
      * @return file content
      */
-    private String readFileContent(String fileName) throws IOException, URISyntaxException {
+    private String readFileContent(String fileName) throws IOException {
         Path rootPath = Path.of(fileName);
-        URL resourcesUrl = getClass().getClassLoader().getResource(fileName);
-
         if(rootPath.toFile().isFile() && rootPath.toFile().exists()) {
             return Files.readString(rootPath, UTF_8);
         }
-        else if(resourcesUrl != null) {
-            Path path = Paths.get(resourcesUrl.toURI());
-            return Files.readString(path, UTF_8);
-        }
-        else throw new IOException(format("Not found config file '%s', searched in locations: \n%s\n%s",
+        String fileFromResources = readResourceStream(fileName);
+        if(fileFromResources != null) return fileFromResources;
+
+        else throw new IOException(format("Not found config file '%s', searched in locations: %n%s%n%s",
                 fileName, rootPath.toFile().getAbsolutePath(), printResourcesFolders(fileName)
             ));
     }
@@ -85,7 +83,21 @@ class ConfigFile {
                 p.load(new StringReader(fileContent));
                 return p;
         }
-        throw new RuntimeException("never happen");
+        throw new IllegalArgumentException("never happen");
+    }
+
+    /**
+     * Read file from resources folder using ResourceStream.
+     * @return file content or null
+     */
+    @Nullable private String readResourceStream(String fileName) throws IOException {
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(fileName)) {
+            if (is == null) return null;
+            try (InputStreamReader isr = new InputStreamReader(is);
+                 BufferedReader reader = new BufferedReader(isr)) {
+                return reader.lines().collect(joining(System.lineSeparator()));
+            }
+        }
     }
 
     private String printResourcesFolders(String suffix) {
