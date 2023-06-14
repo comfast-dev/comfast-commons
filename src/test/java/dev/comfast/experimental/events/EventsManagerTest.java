@@ -3,7 +3,6 @@ import dev.comfast.experimental.events.model.AfterEvent;
 import dev.comfast.experimental.events.model.BeforeEvent;
 import dev.comfast.experimental.events.model.Event;
 import dev.comfast.experimental.events.model.FailedEvent;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +30,6 @@ class EventsManagerTest {
         assertIterableEquals(testEventsOut, List.of());
     }
 
-    @SneakyThrows
     private void doSomething() {
         //something
     }

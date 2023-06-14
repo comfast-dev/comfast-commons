@@ -15,7 +15,7 @@ public class WaiterState {
 
     public WaiterState(WaiterConfig config) {
         this.conf = config;
-        tries = 0;
+        tries = -1;
         startedTimestamp = currentTimeMillis();
     }
 
@@ -29,7 +29,8 @@ public class WaiterState {
         loopStartTime = now;
         loopEndTime = loopStartTime + calculatePoolingTime(loopStartTime);
 
-        return now < conf.timeoutMs;
+        return tries == 0 //always allow first try
+               || now < conf.timeoutMs;
     }
 
     /**

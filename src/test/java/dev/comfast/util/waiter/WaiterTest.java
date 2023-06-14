@@ -12,6 +12,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class WaiterTest {
+    Waiter waiter0 = new Waiter(0);
     Waiter waiter = new Waiter(150);
     Waiter longWaiter = new Waiter(300);
 
@@ -27,7 +28,7 @@ class WaiterTest {
         assertThatCode(() -> longWaiter.waitFor(veryBusyFunction())).doesNotThrowAnyException();
         assertThatThrownBy(() -> waiter.waitFor(veryBusyFunction()))
             .isInstanceOf(WaitTimeout.class)
-            .hasMessageContaining("Wait failed after 150ms, tried 4 times.")
+            .hasMessageContaining("Wait failed after 150ms,")
             .cause().hasMessageContaining("I'm busy now !");
     }
 
@@ -39,7 +40,7 @@ class WaiterTest {
         var someFalsyValue = 0;
         assertThatThrownBy(() -> waiter.waitForValue(() -> someFalsyValue))
             .isInstanceOf(WaitTimeout.class)
-            .hasMessageContaining("Wait failed after 150ms, tried 4 times.")
+            .hasMessageContaining("Wait failed after 150ms")
             .cause().hasMessageContaining("Wait error. Action result is '0'");
     }
 
@@ -60,6 +61,27 @@ class WaiterTest {
 
         assertThatThrownBy(() -> waiter2.waitFor(this::failFunction))
             .hasMessageContaining("failFunction error");
+    }
+
+    @Test void timeout0_shouldBeCalledOnce() {
+        var res = waiter0.waitFor(() -> "ok");
+        assertThat(res).isEqualTo("ok");
+
+        assertThatExceptionOfType(WaitTimeout.class)
+            .isThrownBy(() -> waiter0.waitFor(this::failFunction))
+            .withMessageContaining("Wait failed after 0ms")
+            .withCauseExactlyInstanceOf(RuntimeException.class)
+            .withStackTraceContaining("failFunction error");
+    }
+
+    @Test void waiterShouldLogDescription() {
+        var waiter = new Waiter(10).configure(c -> c.description("very busy function"));
+
+        assertThatThrownBy(() -> waiter.waitFor(veryBusyFunction()))
+            .hasMessageContaining("Wait for very busy function failed after");
+
+        assertThatThrownBy(() -> waiter.configure(c -> c.description(null)).waitFor(veryBusyFunction()))
+            .hasMessageContaining("Wait failed after");
     }
 
     /**

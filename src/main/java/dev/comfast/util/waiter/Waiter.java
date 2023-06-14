@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import static dev.comfast.util.Utils.isNullOrEmpty;
 import static dev.comfast.util.Utils.isTruthly;
 import static dev.comfast.util.Utils.sleep;
 import static java.lang.String.format;
@@ -81,10 +82,14 @@ public class Waiter {
                 sleep(state.getTimeTillNextLoop());
             }
         }
-        throw new WaitTimeout(stats, format("Wait failed after %dms, tried %d times.%s",
+
+        ;
+        throw new WaitTimeout(stats, format("Wait%s failed after %dms, tried %d times.%s",
+            isNullOrEmpty(conf.description) ? "" : " for " + conf.description,
             conf.timeoutMs,
             state.getTries(),
-            conf.includeCauseInErrorMessage ? "Last error:\n" + stats.recentError() : ""
+            conf.includeCauseInErrorMessage && stats.recentError() != null
+                ? " Last error:\n" + stats.recentError() : ""
         ));
     }
 }

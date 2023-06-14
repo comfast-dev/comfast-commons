@@ -3,11 +3,14 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static dev.comfast.util.Utils.isNullOrEmpty;
 import static dev.comfast.util.Utils.isTruthly;
 import static dev.comfast.util.Utils.transposeMatrix;
 import static dev.comfast.util.Utils.trimString;
 import static dev.comfast.util.Utils.withSystemProp;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UtilsTest {
     @Test
@@ -66,5 +69,23 @@ class UtilsTest {
         assertThat(isTruthly(-1)).as("int: -1").isTrue();
         assertThat(isTruthly(1L)).as("long: '1'").isTrue();
         assertThat(isTruthly(0.001f)).as("float: '0.001'").isTrue();
+    }
+
+    @Test void isNullOrEmptyTest() {
+        assertTrue(isNullOrEmpty(null));
+        assertTrue(isNullOrEmpty(""));
+        assertTrue(isNullOrEmpty(" "));
+        assertTrue(isNullOrEmpty("  "));
+
+        assertFalse(isNullOrEmpty("a"));
+        assertFalse(isNullOrEmpty(" a "));
+        assertFalse(isNullOrEmpty(0));
+        assertFalse(isNullOrEmpty(1));
+        assertFalse(isNullOrEmpty(0.0f));
+        assertFalse(isNullOrEmpty(0.0d));
+        assertFalse(isNullOrEmpty(0L));
+        assertFalse(isNullOrEmpty(0.1f));
+        assertFalse(isNullOrEmpty(0.1d));
+        assertFalse(isNullOrEmpty(1L));
     }
 }

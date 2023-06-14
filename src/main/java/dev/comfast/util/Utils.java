@@ -32,6 +32,14 @@ public class Utils {
     }
 
     /**
+     * Can pass any object to check, it will be converted to string.
+     * @return true if string/object is null or its toString() is empty
+     */
+    public static boolean isNullOrEmpty(Object anyString) {
+        return anyString == null || anyString.toString().trim().isEmpty();
+    }
+
+    /**
      * @param matrix list of lists eg.
      * <pre>{@code
      *   ["1", "2", "3", "4"],

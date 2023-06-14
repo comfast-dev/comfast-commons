@@ -7,13 +7,14 @@ import java.time.Duration;
  * <p>Result of {@link Stopwatch} measurement.</p>
  * <p>End time === time when Constructor called</p>
  */
+@Getter
 public class StopwatchTime {
-    @Getter public final long startTimestamp, startTimeNs, endTimeNs;
+    public final long startTimestamp;
+    public final long nanos;
 
     StopwatchTime(long startTimestamp, long startTimeNs) {
         this.startTimestamp = startTimestamp;
-        this.startTimeNs = startTimeNs;
-        endTimeNs = System.nanoTime();
+        nanos = System.nanoTime() - startTimeNs;
     }
 
     @Override public String toString() {
@@ -22,10 +23,6 @@ public class StopwatchTime {
 
     public Duration getDuration() {
         return Duration.ofNanos(getNanos());
-    }
-
-    public long getNanos() {
-        return endTimeNs - startTimeNs;
     }
 
     public long getMillis() {

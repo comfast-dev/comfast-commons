@@ -11,18 +11,18 @@ import static java.lang.System.nanoTime;
  */
 @RequiredArgsConstructor
 public class Stopwatch {
-    private final long startTimestamp, startTimeNs;
+    private final long startTimestamp;
+    private final long startTimeNs;
 
     public Stopwatch() {
         this(currentTimeMillis(), nanoTime());
     }
 
     /** Measure time of running given function */
-    @SuppressWarnings({"ReturnInsideFinallyBlock", "finally"})
     public static StopwatchTime measure(Runnable measuredFunction) {
         var stopwatch = new Stopwatch();
-        try { measuredFunction.run(); }
-        finally { return stopwatch.time(); }
+        measuredFunction.run();
+        return stopwatch.time();
     }
 
     /**

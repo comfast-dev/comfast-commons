@@ -23,19 +23,16 @@ class StopwatchTest {
         assertThat(result.startTimestamp)
             .isGreaterThanOrEqualTo(BEFORE_MS)
             .isLessThan(BEFORE_MS + MAX_DELAY_MS);
-        assertThat(result.startTimeNs)
-            .isGreaterThan(BEFORE_NS)
-            .isLessThan(BEFORE_NS + MAX_DELAY_MS * 1_000_000);
-        assertThat(result.endTimeNs)
-            .isGreaterThan(BEFORE_NS)
-            .isLessThan(System.nanoTime());
-        assertThat(result.getDuration().toMillis()).isLessThan(MAX_DELAY_MS);
-        assertThat(result.getDuration().toMillis()).isEqualTo(result.getMillis());
+        assertThat(result.nanos)
+            .isPositive()
+            .isLessThan(MAX_DELAY_MS * 1_000_000);
+        assertThat(result.getMillis()).isLessThanOrEqualTo(MAX_DELAY_MS);
+        assertThat(result.getDuration().getNano()).isEqualTo(result.nanos);
 
         var result2ndLap = stopwatch.time();
         assertThat(result2ndLap.startTimestamp).isEqualTo(result.startTimestamp);
-        assertThat(result2ndLap.startTimeNs).isEqualTo(result.startTimeNs);
-        assertThat(result2ndLap.endTimeNs).isGreaterThan(result.endTimeNs);
-        assertThat(result2ndLap.endTimeNs).isLessThan(System.nanoTime());
+        assertThat(result2ndLap.nanos)
+            .isGreaterThan(result.nanos)
+            .isLessThan(System.nanoTime() - BEFORE_NS);
     }
 }

@@ -34,6 +34,7 @@ public class WaiterStats {
      * @return last added error
      */
     public Throwable recentError() {
+        if(errorResults.isEmpty()) return null;
         var type = errorResults.get(errorResults.size() - 1).clazz;
         return errors.get(type);
     }
