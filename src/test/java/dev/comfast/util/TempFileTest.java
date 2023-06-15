@@ -1,32 +1,46 @@
 package dev.comfast.util;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.NoSuchFileException;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class TempFileTest {
-    public static final String CONTENT = "lol abc";
+    public static final String CONTENT = "test lol abc";
+    TempFile file = new TempFile("dev.comfast/unittest/file.txt", true);
+    TempFile fileToRemove = new TempFile("dev.comfast/unittest/fileToRemove.txt", true);
+    TempFile notExistFile = new TempFile("notExistFile.txt");
 
-    @Test void readAndWriteFile() {
-        var file = new TempFile("file.txt", true);
+    @Test void readAndWriteTest() {
         file.write(CONTENT);
         assertThat(file.read()).isEqualTo(CONTENT);
     }
 
-    @Test void readAndWriteFileInDirectory() {
-        var file = new TempFile("dev.comfast/unittest/file.txt", true);
-        file.write(CONTENT);
-        assertThat(file.read()).isEqualTo(CONTENT);
-    }
+    @Test void deleteAndExistsTest() {
+        file.write("abc");
+        assertThat(file.exists()).isTrue();
+        assertThat(file.file).exists();
 
-    /**
-     * Run twice to check autoRemove
-     */
-    @Test void autoRemove() {
-        var file = new TempFile("dev.comfast/fileToRemove.txt", true);
+        assertThat(file.delete()).isTrue();
+        assertThat(file.delete()).isFalse();
+        assertThat(file.exists()).isFalse();
         assertThat(file.file).doesNotExist();
+    }
+
+    @Test void readEmptyFileThrowsTest() {
+        assertThatThrownBy(() -> notExistFile.read())
+            .isInstanceOf(NoSuchFileException.class)
+            .hasMessageContaining("notExistFile.txt");
+    }
+
+    @Disabled("run manually, twice to verify feature")
+    @Test void autoRemove() {
+        assertThat(fileToRemove.file).doesNotExist();
 
         file.write("abc");
         // ...
-        // after all tests, file should be auto-removed
+        // while JVM shutdown, file should be auto-removed
     }
 }
