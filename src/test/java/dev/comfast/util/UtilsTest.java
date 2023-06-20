@@ -5,10 +5,12 @@ import java.util.List;
 
 import static dev.comfast.util.Utils.isNullOrEmpty;
 import static dev.comfast.util.Utils.isTruthly;
+import static dev.comfast.util.Utils.readResourceFile;
 import static dev.comfast.util.Utils.transposeMatrix;
 import static dev.comfast.util.Utils.trimString;
 import static dev.comfast.util.Utils.withSystemProp;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -87,5 +89,13 @@ class UtilsTest {
         assertFalse(isNullOrEmpty(0.1f));
         assertFalse(isNullOrEmpty(0.1d));
         assertFalse(isNullOrEmpty(1L));
+    }
+
+    @Test void readResourceFileTest() {
+        assertThat(readResourceFile("test.txt")).isEqualTo("test content");
+        assertThat(readResourceFile("some/test2.txt")).isEqualTo("test2 content");
+
+        assertThatThrownBy(() -> readResourceFile("nothing.txt"))
+            .hasMessageContaining("Not found resource file: nothing.txt");
     }
 }

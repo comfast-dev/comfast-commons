@@ -1,12 +1,15 @@
 package dev.comfast.util;
 import lombok.SneakyThrows;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.stream.IntStream;
 
 import static java.lang.System.clearProperty;
 import static java.lang.System.getProperty;
 import static java.lang.System.setProperty;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.toList;
 
 public class Utils {
@@ -97,5 +100,23 @@ public class Utils {
                 return false;
             default: return true;
         }
+    }
+
+    /**
+     * Read resource file content.
+     * @param resourcePath e.g. fileNAme.txt or some/folder/file.txt
+     * @return file content
+     */
+    @SneakyThrows
+    public static String readResourceFile(String resourcePath) {
+        var stream = Utils.class.getClassLoader().getResourceAsStream(resourcePath);
+        if(stream == null) throw new RuntimeException("Not found resource file: " + resourcePath);
+        BufferedInputStream bis = new BufferedInputStream(stream);
+        ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        for (int result = bis.read(); result != -1; result = bis.read()) {
+            buf.write((byte) result);
+        }
+
+        return buf.toString(UTF_8);
     }
 }
