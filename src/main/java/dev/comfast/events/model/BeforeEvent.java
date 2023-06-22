@@ -1,4 +1,4 @@
-package dev.comfast.experimental.events.model;
+package dev.comfast.events.model;
 import dev.comfast.util.time.Stopwatch;
 import lombok.Getter;
 
@@ -25,7 +25,7 @@ public class BeforeEvent<T> extends Event<T> {
     /**
      * Creates FailedEvent with given error.
      */
-    public FailedEvent<T> failed(Throwable error) {
-        return new FailedEvent<>(context, actionName, actionParams, stopwatch.time(), error);
+    public AfterEvent<T> failed(Throwable error) {
+        return new AfterEvent<>(context, actionName, actionParams, stopwatch.time(), error);
     }
 }
