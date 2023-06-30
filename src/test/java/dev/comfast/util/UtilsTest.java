@@ -40,18 +40,25 @@ class UtilsTest {
     @Test
     void withSystemPropTest() {
         //given
-        final String KEY = "xx.test", VALUE = "test value";
-        System.setProperty(KEY, VALUE);
+        final String KEY = "xx.test",
+            INITIAL_VALUE = "initial value",
+            CHANGED_VALUE = "xx is changed";
+        System.setProperty(KEY, INITIAL_VALUE);
 
-        //when
-        withSystemProp(KEY, () -> System.setProperty(KEY, "changed value"));
+        //when modify property in func
+        withSystemProp(KEY, () -> System.setProperty(KEY, CHANGED_VALUE));
         assertThat(System.getProperty(KEY))
-            .isEqualTo(VALUE);
+            .isEqualTo(INITIAL_VALUE);
 
-        //when
+        //when clear property
         withSystemProp(KEY, () -> System.clearProperty(KEY));
         assertThat(System.getProperty(KEY))
-            .isEqualTo(VALUE);
+            .isEqualTo(INITIAL_VALUE);
+
+        //when value passed
+        withSystemProp(KEY, CHANGED_VALUE, () -> assertThat(System.getProperty(KEY)).isEqualTo(CHANGED_VALUE));
+        assertThat(System.getProperty(KEY))
+            .isEqualTo(INITIAL_VALUE);
     }
 
     @Test
