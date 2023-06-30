@@ -141,6 +141,6 @@ class EventsManagerTest {
     }
 
     private String getSomething() {
-        return "hello";
+        return "something";
     }
 }
