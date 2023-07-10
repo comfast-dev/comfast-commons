@@ -7,7 +7,6 @@ This repo contains utility classes:
 - `dev.comfast.util.waiter` - Allow to repeat given action till it finish without error or throw Timeout. 
 - `dev.comfast.util.TempFile` - Manage/read/write temp file 
 - `dev.comfast.util.TerminalGenerator` - Build ASCII tables
-- 
 
 ## Deployment
 Deployment requires 2 things: 
