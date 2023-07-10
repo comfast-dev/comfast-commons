@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "dev.comfast"
-version = "0.3.6"
+version = "0.4.0"
 
 dependencies {
     compileOnly("org.jetbrains:annotations:24.0.1")
