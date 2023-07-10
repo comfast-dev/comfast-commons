@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static java.lang.Runtime.getRuntime;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
@@ -27,7 +28,11 @@ public class TempFile {
 
     public TempFile(String tmpPath, boolean autoRemove) {
         this.file = Path.of(System.getProperty("java.io.tmpdir"), tmpPath);
+
         this.autoRemove = autoRemove;
+        if(autoRemove) {
+            getRuntime().addShutdownHook(new Thread(this::delete));
+        }
     }
 
     /**
@@ -37,8 +42,6 @@ public class TempFile {
     public void write(String content) {
         Files.createDirectories(file.getParent());
         Files.writeString(file, content, UTF_8);
-
-        if(autoRemove) addAutoRemoveHook();
     }
 
     /**
@@ -49,15 +52,15 @@ public class TempFile {
         return Files.readString(file, UTF_8);
     }
 
-    /**
-     * Add shutdown hook that will try to remove file after main thread end.
-     */
-    private void addAutoRemoveHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread(
-            () -> {
-                try {Files.deleteIfExists(file);
-                } catch(IOException ignored) {} //don't care
-            }
-        ));
+    public boolean exists() {
+        return Files.exists(file);
+    }
+
+    public boolean delete() {
+        try {
+            return Files.deleteIfExists(file);
+        } catch(IOException ignored) {
+            return false;
+        }
     }
 }

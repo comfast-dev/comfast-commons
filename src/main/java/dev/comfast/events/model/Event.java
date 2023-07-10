@@ -1,4 +1,4 @@
-package dev.comfast.experimental.events.model;
+package dev.comfast.events.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
