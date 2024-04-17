@@ -68,8 +68,9 @@ public class Utils {
      * e.g. <pre>{@code
      *     // here "my.timeout" is 3000
      *     withSystemProp("my.timeout", () -> {
-     *         System.setProperty("my.timeout", "0");
-     *         doSomeTests();
+     *         System.setProperty("my.timeout", "456");
+     *         //or even System.clearProperty("my.timeout");
+     *         doSomeTestsWith456Timeout();
      *     })
      *     // here "my.timeout" is restored to 3000
      * }
@@ -77,8 +78,26 @@ public class Utils {
      * }
      */
     public static void withSystemProp(String systemPropertyName, Runnable func) {
+        withSystemProp(systemPropertyName, null, func);
+    }
+
+    /**
+     * Restore system property after func is done.
+     * It's safe to edit it inside given function, for test purposes or any other.
+     * e.g. <pre>{@code
+     *     // here "my.timeout" is 3000
+     *     withSystemProp("my.timeout", "0" () -> {
+     *         doSomeTestsWithZeroTimeout();
+     *     })
+     *     // here "my.timeout" is restored to 3000
+     * }
+     * @param func within this function can edit system prop freely without side effects for the rest of the code
+     * }
+     */
+    public static void withSystemProp(String systemPropertyName, String systemPropertyValue, Runnable func) {
         final String restoreValue = getProperty(systemPropertyName);
         try {
+            if(systemPropertyValue != null) System.setProperty(systemPropertyName, systemPropertyValue);
             func.run();
         } finally {
             if(restoreValue == null) clearProperty(systemPropertyName);
