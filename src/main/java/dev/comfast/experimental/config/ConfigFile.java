@@ -21,7 +21,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
 
 @RequiredArgsConstructor
-class ConfigFile {
+public class ConfigFile {
     private static final ObjectMapper jsonMapper = new ObjectMapper();
     private static final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
     private static final MapFlatter flatter = new MapFlatter();
@@ -44,8 +44,10 @@ class ConfigFile {
             Map<?, ?> fullMap = objectMapperRead(fileType, fileContent);
             return flatter.flat(fullMap);
         } catch(IOException e) {
-            if(required) throw e;
-            else return new HashMap<>();
+            if(!required && e.getMessage().startsWith("Not found config file")) {
+                return new HashMap<>();
+            }
+            throw e;
         }
     }
 
